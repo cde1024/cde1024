@@ -1,5 +1,6 @@
 var BufferHelper = require('bufferhelper');
 var express = require('express');
+var fs = require('fs');
 var http = require('http');
 var iconv = require('iconv-lite');
 var jsdom = require('jsdom');
@@ -9,8 +10,19 @@ var app = express();
 app.use(express.logger());
 params.extend(app);
 
+var loadFile = fs.readFileSync('load.gif');
+var indexFile = fs.readFileSync('index.html');
+
 var CODE_SUCCESS = 0;
 var CODE_ERROR = 1;
+
+app.get('/load.gif', function(request, response) {
+    response.end(loadFile);
+});
+
+app.get('/', function(request, response) {
+    response.end(indexFile);
+});
 
 app.get('/list', function(request, response) {
   var page = parseInt(request.param('page')) || 1;

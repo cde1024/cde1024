@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>images</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+            body{margin:0;padding:0;}
+            ul,li{list-style:none;margin:0;padding:0;}
+            a{color:#a66f00;text-decoration:none;line-height:1.5;}
+            .content img{display:block;max-width:100%;margin-bottom:4px;}
+            .visited{color:#06266f;}
+            .current{color:#fff;}
+            .sidebar{display:block;width:78px;padding:4px;float:left;background:#ffbf40;}
+            .content{margin-left:90px;}
+            #top{position:fixed;right:4px;bottom:4px;padding:16px;background:#ffbf40;color:#a66f00;border-radius:4px;cursor:pointer;}
+            .hide{display:none;}
+        </style>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script>
+            $(function(){
+                var show = function(tid, el) {
+                    if (el) {
+                        el.next().show();
+                    }
+                    $.getJSON(tid, function(data){
+                        if (data && data.code === 0 && data.data){
+                            var items = [];
+                            $.each(data.data, function(key, val){
+                                items.push('<img src="' + val + '"/>');
+                            });
+                            $('.content').html(items.join(''));
+                        }
+                    })
+                    .always(function(){
+                        if (el) {
+                            el.next().hide();
+                        }
+                    });
+                };
+                $.getJSON('list', function(data){
+                    if (data && data.code === 0 && data.data){
+                        var items = [];
+                        $.each(data.data, function(key, val){
+                            items.push('<li><a href="#' + val + '">' + val + '</a> <img src="load.gif" class="hide"/><li/>');
+                        });
+                        $('#topics').html('<ul>' + items.join('') + '</ul>');
+                        if (location.hash.match(/^#\d+$/)) {
+                            $('.current').removeClass('current');
+                            $('a[href=#' + location.hash.substring(1) + ']').addClass('visited current');
+                        }
+                    }
+                });
+                $(document).on('click', 'a', function(){
+                    $('.current').removeClass('current');
+                    $(this).addClass('visited current');
+                    show($(this).text(), $(this));
+                });
+                $('#top').hide();
+                $(function(){
+                    var lastTop = 0;
+                    $(window).scroll(function(){
+                        var top = $(this).scrollTop();
+                        if (top > 100) {
+                            if (top < lastTop) {
+                                $('#top').fadeIn();
+                            } else {
+                                $('#top').fadeOut();
+                            }
+                        } else {
+                            $('#top').fadeOut();
+                        }
+                        lastTop = top;
+                    });
+                    $('#top').click(function(){
+                        $('body,html').animate({
+                            scrollTop: 0
+                        }, 800);
+                    });
+                });
+                if (location.hash.match(/^#\d+$/)) {
+                    show(location.hash.substring(1));
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <div class="sidebar">
+            <div id="topics"></div>
+        </div>
+        <div class="content"></div>
+        <div id="top">TOP</div>
+    </body>
+</html>
